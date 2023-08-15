@@ -20,25 +20,31 @@ def rms_score(y_true, y_pred):
 
 
 def load_tensor(file_name, dtype):
-    return [dtype(d).to(device) for d in np.load(file_name + '.npy')]
+    return [dtype(d).to(device) for d in np.load(f'{file_name}.npy')]
 
 
 class mydataset(torch.utils.data.Dataset):
 
     def __init__(self,dataset):
 
-        self.Features = load_tensor('./FreeSolv/decrease/' + dataset +'/Features', torch.FloatTensor)
-        self.Normed_adj = load_tensor('./FreeSolv/decrease/' + dataset +'/Normed_adj', torch.FloatTensor)
-        self.Fringer = load_tensor('./FreeSolv/decrease/' + dataset +'/fingerprint_stand', torch.FloatTensor)
-        self.interactions = load_tensor('./FreeSolv/decrease/' + dataset +'/Interactions', torch.FloatTensor)
+        self.Features = load_tensor(
+            f'./FreeSolv/decrease/{dataset}/Features', torch.FloatTensor
+        )
+        self.Normed_adj = load_tensor(
+            f'./FreeSolv/decrease/{dataset}/Normed_adj', torch.FloatTensor
+        )
+        self.Fringer = load_tensor(
+            f'./FreeSolv/decrease/{dataset}/fingerprint_stand', torch.FloatTensor
+        )
+        self.interactions = load_tensor(
+            f'./FreeSolv/decrease/{dataset}/Interactions', torch.FloatTensor
+        )
 
         self.dataset = list(zip(np.array(self.Features), np.array(self.Normed_adj), np.array(self.Fringer),np.array(self.interactions)))
 
 
     def __getitem__(self, item):
-        data_batch = self.dataset[item]
-
-        return data_batch
+        return self.dataset[item]
 
     def __len__(self):
         return len(self.interactions)
@@ -157,8 +163,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_2_relu = F.relu(outs_conv1d_2)
         outs_conv1d_2_permute = outs_conv1d_2_relu.permute(0, 2, 1)
         outs_conv1d_2_permute_unbind = torch.unbind(outs_conv1d_2_permute, dim=1)
-        outs_conv1d_2_batch_norm = self.bn(outs_conv1d_2_permute_unbind[0])
-        return outs_conv1d_2_batch_norm
+        return self.bn(outs_conv1d_2_permute_unbind[0])
 
     def C_SGEL2(self, Normed_adj, input_feature):
         adj_m = self.dropout_adj(Normed_adj)
@@ -173,8 +178,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_4 = F.relu(outs_conv1d_4)
         outs_conv1d_4_permute = outs_conv1d_4.permute(0, 2, 1)
         outs_conv1d_4_permute_unbind = torch.unbind(outs_conv1d_4_permute, dim=1)
-        outs_conv1d_4_batch_norm = self.bn(outs_conv1d_4_permute_unbind[0])
-        return outs_conv1d_4_batch_norm
+        return self.bn(outs_conv1d_4_permute_unbind[0])
 
     def C_SGEL3(self, Normed_adj, input_feature):
         adj_m = self.dropout_adj(Normed_adj)
@@ -188,8 +192,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_6 = F.relu(outs_conv1d_6)
         outs_conv1d_6_permute = outs_conv1d_6.permute(0, 2, 1)
         outs_conv1d_6_permute_unbind = torch.unbind(outs_conv1d_6_permute, dim=1)
-        outs_conv1d_6_batch_norm = self.bn(outs_conv1d_6_permute_unbind[0])
-        return outs_conv1d_6_batch_norm
+        return self.bn(outs_conv1d_6_permute_unbind[0])
 
     def C_SGEL4(self, Normed_adj, input_feature):
         adj_m = self.dropout_adj(Normed_adj)
@@ -203,8 +206,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_8 = F.relu(outs_conv1d_8)
         outs_conv1d_8_permute = outs_conv1d_8.permute(0, 2, 1)
         outs_conv1d_8_permute_unbind = torch.unbind(outs_conv1d_8_permute, dim=1)
-        outs_conv1d_8_batch_norm = self.bn(outs_conv1d_8_permute_unbind[0])
-        return outs_conv1d_8_batch_norm
+        return self.bn(outs_conv1d_8_permute_unbind[0])
 
     def C_SGEL5(self, Normed_adj, input_feature):
         adj_m = self.dropout_adj(Normed_adj)
@@ -218,8 +220,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_10 = F.relu(outs_conv1d_10)
         outs_conv1d_10_permute = outs_conv1d_10.permute(0, 2, 1)
         outs_conv1d_10_permute_unbind = torch.unbind(outs_conv1d_10_permute, dim=1)
-        outs_conv1d_10_batch_norm = self.bn(outs_conv1d_10_permute_unbind[0])
-        return outs_conv1d_10_batch_norm
+        return self.bn(outs_conv1d_10_permute_unbind[0])
 
     def C_SGEL6(self, Normed_adj, input_feature):
         adj_m = self.dropout_adj(Normed_adj)
@@ -235,8 +236,7 @@ class C_SGEN(nn.Module):
         outs_conv1d_12 = F.relu(outs_conv1d_12)
         outs_conv1d_12_permute = outs_conv1d_12.permute(0, 2, 1)
         outs_conv1d_12_permute_unbind = torch.unbind(outs_conv1d_12_permute, dim=1)
-        outs_conv1d_12_batch_norm = self.bn(outs_conv1d_12_permute_unbind[0])
-        return outs_conv1d_12_batch_norm
+        return self.bn(outs_conv1d_12_permute_unbind[0])
 
     def simple_conv2(self, Normed_adj, Features):
         adj_m = self.dropout_adj(Normed_adj)
@@ -282,10 +282,7 @@ class C_SGEN(nn.Module):
         # Concatenate molecule and fingerprint
         y_molecules = torch.cat((y_molecules, Fringer), 1)
 
-        # Prediction of Molecular Properties by Fully Connected Layer
-        z_molecules = self.predict_property(y_molecules)
-
-        return z_molecules
+        return self.predict_property(y_molecules)
 
     def __call__(self, data_batch, std, mean, train=True):
 
@@ -294,9 +291,7 @@ class C_SGEN(nn.Module):
 
         if train:
             t_interaction = torch.unsqueeze(t_interaction, 1)
-            loss = F.mse_loss(z_interaction, t_interaction)
-            return loss
-
+            return F.mse_loss(z_interaction, t_interaction)
         else:
             t_interaction = torch.unsqueeze(t_interaction, 1)
             loss = F.mse_loss(z_interaction, t_interaction)
@@ -324,8 +319,7 @@ class Trainer(object):
             loss.backward()
             self.optimizer.step()
             loss_total += loss.to('cpu').data.numpy()
-        loss_mean = loss_total/num
-        return loss_mean
+        return loss_total/num
 
 
 class T(object):
@@ -345,10 +339,8 @@ class T(object):
             num += 1
             loss, predicted, true = self.model(data, std=self.std, mean=self.mean, train=False)
 
-            for i in predicted:
-                all_p.append(float(i))
-            for i in true:
-                all_t.append(float(i))
+            all_p.extend(float(i) for i in predicted)
+            all_t.extend(float(i) for i in true)
             loss_total += loss.to('cpu').data.numpy()
 
         RMSE = rms_score(all_t, all_p)
@@ -364,7 +356,6 @@ def metric(RMSE_k_test):
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device('cuda')
 
-std = 3.8448222046029543
 mean = -3.8030062305295975
 iteration = 33
 window = 5
@@ -377,18 +368,12 @@ lr = 5e-4
 lr_decay = 0.5
 lr, lr_decay = map(float, [lr, lr_decay])
 
-setting = 'FreeSolv--' \
-          '--batch' + str(batch) + \
-          '--k' + str(k) + \
-          '--lr-' + str(lr) + \
-          '--iteration-' + str(iteration)+\
-            '--ch_num-' + str(4*ch_num)+\
-            '--decay_interval-' + str(decay_interval)
+setting = f'FreeSolv----batch{batch}--k{k}--lr-{str(lr)}--iteration-{iteration}--ch_num-{str(4 * ch_num)}--decay_interval-{decay_interval}'
 
 print(setting)
 print('batch:', batch)
 print('k:', k)
-print('ch_num:', str(4*ch_num))
+print('ch_num:', 4*ch_num)
 print('decay_interval:', decay_interval)
 print('lr:', lr)
 print('lr_decay:', lr_decay)
@@ -414,6 +399,7 @@ valid_loader = DataLoader(valid_dataset, batch_size=batch, shuffle=True, drop_la
 test_loader = DataLoader(test_dataset, batch_size=batch, shuffle=True, drop_last=True)
 
 
+std = 3.8448222046029543
 for seed in seed_list:
 
     torch.manual_seed(seed)

@@ -14,7 +14,7 @@ def rms_score(y_true, y_pred):
     return np.sqrt(mean_squared_error(y_true, y_pred))
 
 def load_tensor(file_name, dtype):
-    return [dtype(d).to(device) for d in np.load(file_name + '.npy')]
+    return [dtype(d).to(device) for d in np.load(f'{file_name}.npy')]
 
 class TestDataset(InMemoryDataset):
     def __init__(self, data_list):
@@ -29,11 +29,13 @@ class TestDataset(InMemoryDataset):
 
 def load_dataset(dataset):
 
-    with open('./FreeSolv/decrease/' + dataset +'/full_feature','rb') as node_features:
+    with open(f'./FreeSolv/decrease/{dataset}/full_feature', 'rb') as node_features:
         x_train = pickle.load(node_features)
-    with open('./FreeSolv/decrease/' + dataset +'/edge','rb') as f:
+    with open(f'./FreeSolv/decrease/{dataset}/edge', 'rb') as f:
         edge_index_train = pickle.load(f)
-    y_train = load_tensor('./FreeSolv/decrease/' + dataset +'/Interactions', torch.FloatTensor)
+    y_train = load_tensor(
+        f'./FreeSolv/decrease/{dataset}/Interactions', torch.FloatTensor
+    )
 
     d = []
     for i in range(len(y_train)):
@@ -41,8 +43,7 @@ def load_dataset(dataset):
         data = AddSelfLoops()(data)
         data.atom_num = x_train[i].shape[0]
         d.append(data)
-    set = TestDataset(d)
-    return set
+    return TestDataset(d)
 
 # FreeSolv
 std = 3.8448222046029543
@@ -68,8 +69,7 @@ class Trainer(object):
             self.optimizer.step()
             loss_total += loss.to('cpu').data.numpy()
 
-        loss_mean = loss_total / num
-        return loss_mean
+        return loss_total / num
 
 class tester(object):
     def __init__(self, model, std, mean):
@@ -88,10 +88,8 @@ class tester(object):
             data = data.to(device)
             loss, predicted, true = self.model(data, std=self.std, mean=self.mean, train=False)
 
-            for i in predicted:
-                all_p.append(float(i))
-            for i in true:
-                all_t.append(float(i))
+            all_p.extend(float(i) for i in predicted)
+            all_t.extend(float(i) for i in true)
             loss_total += loss.to('cpu').data.numpy()
 
         RMSE = rms_score(all_t,all_p)

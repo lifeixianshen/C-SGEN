@@ -17,8 +17,7 @@ def normalize_adj(adj):
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
 
-    a = d_mat_inv_sqrt.dot(adj)
-    return a
+    return d_mat_inv_sqrt.dot(adj)
 
 def preprocess_adj(adj, norm=True, sparse=False):
     """Preprocessing of adjacency matrix for simple GCN model and conversion to tuple representation."""
@@ -52,22 +51,19 @@ class GAT(torch.nn.Module):
         x4 = self.conv2(x3, edge_index)
 
         y_molecules = global_add_pool(x4, batch)
-        z_molecules = self.gather_layer(y_molecules)
-        return z_molecules
+        return self.gather_layer(y_molecules)
 
     def __call__(self, data, std, mean, train=True):
 
         target = torch.unsqueeze(data.y, 1)
         out = self.forward(data)
         if train:
-            loss = F.mse_loss(out, target)
-            return loss
-        else:
-            loss = F.mse_loss(out, target)
-            out = out.to('cpu').data.numpy()
-            target = target.to('cpu').data.numpy()
-            z, t = std * out + mean, std * target + mean
-            return loss, z, t
+            return F.mse_loss(out, target)
+        loss = F.mse_loss(out, target)
+        out = out.to('cpu').data.numpy()
+        target = target.to('cpu').data.numpy()
+        z, t = std * out + mean, std * target + mean
+        return loss, z, t
 
 class SGC(torch.nn.Module):
     """
@@ -89,22 +85,19 @@ class SGC(torch.nn.Module):
         x1 = self.conv1(x, edge_index)
 
         y_molecules = global_add_pool(x1, batch)
-        z_molecules = self.gather_layer(y_molecules)
-        return z_molecules
+        return self.gather_layer(y_molecules)
 
     def __call__(self, data, std, mean, train=True):
 
         target = torch.unsqueeze(data.y, 1)
         out = self.forward(data)
         if train:
-            loss = F.mse_loss(out, target)
-            return loss
-        else:
-            loss = F.mse_loss(out, target)
-            out = out.to('cpu').data.numpy()
-            target = target.to('cpu').data.numpy()
-            z, t = std * out + mean, std * target + mean
-            return loss, z, t
+            return F.mse_loss(out, target)
+        loss = F.mse_loss(out, target)
+        out = out.to('cpu').data.numpy()
+        target = target.to('cpu').data.numpy()
+        z, t = std * out + mean, std * target + mean
+        return loss, z, t
 
 class AGNN(torch.nn.Module):
     """
@@ -130,22 +123,19 @@ class AGNN(torch.nn.Module):
         x = self.lin2(x)
 
         y_molecules = global_add_pool(x, batch)
-        z_molecules = self.gather_layer(y_molecules)
-        return z_molecules
+        return self.gather_layer(y_molecules)
 
     def __call__(self, data, std, mean, train=True):
 
         target = torch.unsqueeze(data.y, 1)
         out = self.forward(data)
         if train:
-            loss = F.mse_loss(out, target)
-            return loss
-        else:
-            loss = F.mse_loss(out, target)
-            out = out.to('cpu').data.numpy()
-            target = target.to('cpu').data.numpy()
-            z, t = std * out + mean, std * target + mean
-            return loss, z, t
+            return F.mse_loss(out, target)
+        loss = F.mse_loss(out, target)
+        out = out.to('cpu').data.numpy()
+        target = target.to('cpu').data.numpy()
+        z, t = std * out + mean, std * target + mean
+        return loss, z, t
 
 class ARMA(torch.nn.Module):
     """
@@ -182,20 +172,17 @@ class ARMA(torch.nn.Module):
         x = self.conv2(x, edge_index)
 
         y_molecules = global_add_pool(x, batch)
-        z_molecules = self.gather_layer(y_molecules)
-        return z_molecules
+        return self.gather_layer(y_molecules)
 
     def __call__(self, data, std, mean, train=True):
 
         target = torch.unsqueeze(data.y, 1)
         out = self.forward(data)
         if train:
-            loss = F.mse_loss(out, target)
-            return loss
-        else:
-            loss = F.mse_loss(out, target)
-            out = out.to('cpu').data.numpy()
-            target = target.to('cpu').data.numpy()
-            z, t = std * out + mean, std * target + mean
-            return loss, z, t
+            return F.mse_loss(out, target)
+        loss = F.mse_loss(out, target)
+        out = out.to('cpu').data.numpy()
+        target = target.to('cpu').data.numpy()
+        z, t = std * out + mean, std * target + mean
+        return loss, z, t
 

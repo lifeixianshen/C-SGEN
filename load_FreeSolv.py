@@ -16,15 +16,15 @@ def create_adjacency(mol):
 def save_feature(dir, Features, Normed_adj, Interactions, smiles, edge, full_feature, dataset=None):
     dir_input = (dir + dataset + '/')
     os.makedirs(dir_input, exist_ok=True)
-    np.save(dir_input + 'Features', Features)
-    np.save(dir_input + 'Normed_adj', Normed_adj)
-    np.save(dir_input + 'Interactions', Interactions)
-    np.save(dir_input + 'smiles', smiles)
+    np.save(f'{dir_input}Features', Features)
+    np.save(f'{dir_input}Normed_adj', Normed_adj)
+    np.save(f'{dir_input}Interactions', Interactions)
+    np.save(f'{dir_input}smiles', smiles)
 
-    with open(dir_input + 'edge', 'wb') as f:
+    with open(f'{dir_input}edge', 'wb') as f:
         pickle.dump(edge, f)
 
-    with open(dir_input + 'full_feature', 'wb') as a:
+    with open(f'{dir_input}full_feature', 'wb') as a:
         pickle.dump(full_feature, a)
 
 
@@ -44,7 +44,7 @@ def fix_input(feature_array, iAdjTmp):
     if len(feature_array) <= maxNumAtoms:
         iFeature[0:len(feature_array), 0:75] = feature_array
     else:
-        iFeature = feature_array[0:maxNumAtoms]
+        iFeature = feature_array[:maxNumAtoms]
 
     adjacency = np.zeros((maxNumAtoms, maxNumAtoms))
 
